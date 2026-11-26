@@ -1,0 +1,16 @@
+{
+  // VS Code: "Dev Containers: Reopen in Container" builds the Dockerfile and opens the repo inside it.
+  "name": "baremetal-arm64",
+  "build": {
+    "dockerfile": "../Dockerfile",
+    "context": ".."
+  },
+  "workspaceMount": "source=${localWorkspaceFolder},target=/work,type=bind",
+  "workspaceFolder": "/work",
+  "remoteUser": "ubuntu",
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-vscode.cpptools"]
+    }
+  }
+}

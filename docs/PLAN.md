@@ -9,13 +9,13 @@ assembly. Every stage is a valid stopping point. Only claim finished stages on t
 instead of a list of manual steps. If CI fails, the cause is the code, not a different toolchain.
 
 **Done when:**
-- [ ] A `Dockerfile` exists with a **pinned** Ubuntu base image (e.g. a specific `ubuntu:24.04`
+- [x] A `Dockerfile` exists with a **pinned** Ubuntu base image (e.g. a specific `ubuntu:24.04`
       tag) that installs: `make`, `git`, `gcc-aarch64-linux-gnu`, `binutils-aarch64-linux-gnu`,
       `gdb-multiarch`, `qemu-system-arm`, `device-tree-compiler`. These are the packages tested in
       `docs/SETUP.md`.
-- [ ] (Optional) `.devcontainer/devcontainer.json`, so VS Code can "Reopen in Container".
+- [x] (Optional) `.devcontainer/devcontainer.json`, so VS Code can "Reopen in Container".
 - [ ] The image builds and runs the smoke test on **both** the Mac and Windows.
-- [ ] `docs/SETUP.md` is updated so the Docker workflow is the main path and the manual steps are
+- [x] `docs/SETUP.md` is updated so the Docker workflow is the main path and the manual steps are
       a fallback.
 - [ ] Later, the CI workflow (deliverable 2) reuses the same image.
 
@@ -25,8 +25,7 @@ instead of a list of manual steps. If CI fails, the cause is the code, not a dif
 - On Windows, keep the repo inside WSL's file system (e.g. `~/projects/...`), not under `C:\`,
   because bind mounts from `C:\` are slow.
 - Debugging needs two shells in the same container (`docker exec -it <name> bash`).
-- Nobody has written the Dockerfile yet. Kavin chose to add it to the plan rather than have it
-  generated during setup.
+- The Dockerfile was written in Nov 2026 but hasn't been built on either machine yet.
 
 ## Smoke test (before Stage 1)
 

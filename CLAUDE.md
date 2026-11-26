@@ -57,7 +57,8 @@ writing drivers from hardware specifications, plus boot code, exceptions and int
 - [x] Plan agreed and the manual setup tested end-to-end (in a Linux container, Nov 2026):
       toolchain installs, a minimal UART "hello" prints under QEMU, GDB attaches and breaks
       at `main`.
-- [ ] **Next: Stage 0, a reproducible environment.** No Dockerfile exists yet. See `docs/PLAN.md`.
+- [ ] **Now: Stage 0, a reproducible environment.** `Dockerfile`, `.devcontainer/` and the Docker
+      path in `docs/SETUP.md` are written. Not yet built on the Mac or Windows. See `docs/PLAN.md`.
 - [ ] Smoke test: Kavin writes the four starter files himself (`docs/SETUP.md`, step 5).
 - [ ] Stage 1: UART driver.
 - [ ] Stage 2: exceptions, the GIC, the timer and an interrupt-driven UART.

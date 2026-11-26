@@ -1,0 +1,3 @@
+# The image only needs the Dockerfile; the repo is mounted at run time, not copied in.
+# Ignoring everything keeps builds fast and stops the build context changing on every edit.
+*

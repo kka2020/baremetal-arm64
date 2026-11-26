@@ -1,7 +1,8 @@
 # Setup guide (beginner-friendly)
 
-These are the **manual** setup steps, tested end-to-end in Nov 2026. Once Stage 0 is done (see
-`docs/PLAN.md`), a Dockerfile will replace steps 1–3 and this guide should be updated.
+The main path is **Docker**: one image (defined by the `Dockerfile` in the repo root) gives the
+same tools on the Mac, on Windows (WSL2) and in GitHub Actions. The **manual** steps, tested
+end-to-end in Nov 2026, are kept below as a fallback.
 
 ## The tools and what they do
 
@@ -17,40 +18,78 @@ You write the code in your normal editor. The container (Mac) or WSL2 (Windows) 
 
 ---
 
-## On the Mac
+## Main path: Docker (Mac and Windows)
 
-### Step 1: Install a container app
-Install **OrbStack** (orbstack.dev) or Docker Desktop, and open it once. Check it works:
+### Step 1: Install Docker
+- **Mac:** install **OrbStack** (orbstack.dev) or Docker Desktop and open it once.
+- **Windows:** install Docker Desktop with the WSL2 backend turned on, or install Docker Engine
+  inside your WSL2 Ubuntu. Run every command below in the **WSL2 terminal**, with the repo in
+  WSL's own file system (`~/projects/baremetal-arm64`), not under `C:\Users\...`. Bind mounts
+  from `C:\` are slow.
+
+Check it works:
 ```bash
 docker run --rm hello-world
 ```
 
-### Step 2: Start a container that shares the project folder
+### Step 2: Build the image (once, and again whenever the `Dockerfile` changes)
+From the repo root:
+```bash
+docker build -t baremetal-arm64 .
+```
+- `-t baremetal-arm64` names (tags) the image so you can refer to it later.
+- `.` means "use the `Dockerfile` in this folder".
+- On the Mac this builds an arm64 image and on Windows an x86-64 one. The Ubuntu package versions
+  are the same, so it makes no difference to this project.
+
+### Step 3: Start a container with the repo mounted
+```bash
+docker run -it --rm --name baremetal -v "$PWD":/work baremetal-arm64
+```
+- `-it` gives you an interactive terminal.
+- `--rm` deletes the container when you exit. Nothing is lost: your files live on the host, and
+  the tools live in the image.
+- `--name baremetal` lets the second shell find this container.
+- `-v "$PWD":/work` shares the repo with the container at `/work`. Edit on the host with your
+  normal editor; build and run inside the container.
+
+**Second shell (for debugging):** in another terminal, `docker exec -it baremetal bash`.
+
+**VS Code (optional):** with the Dev Containers extension, run "Dev Containers: Reopen in
+Container". It uses `.devcontainer/devcontainer.json`, which builds the same `Dockerfile`.
+
+### Check the tools (inside the container)
+```bash
+aarch64-linux-gnu-gcc --version
+qemu-system-aarch64 --version
+gdb-multiarch --version
+```
+Then do step 4 below and compare `virt.dts` with `docs/FACTS.md`.
+
+---
+
+## Fallback: manual setup
+
+Use this only if Docker isn't available.
+
+### On the Mac
+Install OrbStack or Docker Desktop, then start a plain Ubuntu container that shares the project
+folder:
 ```bash
 docker run -it --name baremetal -v ~/projects/baremetal-arm64:/work -w /work ubuntu:24.04 bash
 ```
-- `--name baremetal` lets you come back to the same container later.
-- `-v ...:/work` shares the Mac folder with the container. Files saved on the Mac appear inside it.
-- `-w /work` starts you in that folder.
-
-Later sessions:
-- re-enter with `docker start -ai baremetal`;
-- open a second shell (needed for debugging) with `docker exec -it baremetal bash`.
-
-### Step 3: Install the tools (inside the container)
+Re-enter later with `docker start -ai baremetal`; open a second shell with
+`docker exec -it baremetal bash`. Inside it, install the tools:
 ```bash
 apt update
 apt install -y make git gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu \
     gdb-multiarch qemu-system-arm device-tree-compiler
-aarch64-linux-gnu-gcc --version
-qemu-system-aarch64 --version
 ```
 The container is ARM Linux, so its normal compiler already targets ARM64. If apt can't find
 `gcc-aarch64-linux-gnu`, install `build-essential` instead. It's the same compiler.
 
-## On Windows (WSL2)
-
-You don't need a container. In the Ubuntu (WSL2) terminal, run:
+### On Windows (WSL2)
+In the Ubuntu (WSL2) terminal:
 ```bash
 sudo apt update
 sudo apt install -y make git gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu \
@@ -59,8 +98,7 @@ sudo apt install -y make git gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu \
 - The compiler is a true cross-compiler here (x86 → ARM). Nothing needs doing differently.
 - QEMU emulates every ARM instruction in software, which is slower, but for a program this small
   you won't notice.
-- Keep the repo in WSL's own file system (`~/projects/baremetal-arm64`), not under `C:\Users\...`.
-  Edit it with VS Code's WSL extension.
+- Keep the repo in WSL's own file system and edit it with VS Code's WSL extension.
 - For debugging, use two WSL tabs instead of `docker exec`.
 
 ## Keeping the two machines in sync
@@ -173,3 +211,5 @@ Commit once the smoke test works. Log every real bug in `NOTES.md`.
 | GDB says "Connection refused" | QEMU isn't running with `make debug` in the other shell |
 | `make: *** missing separator` | Spaces instead of a tab in the Makefile |
 | Can't exit QEMU | `Ctrl-A`, then `X` |
+| `docker exec`: "No such container" | Start the first shell with `docker run ... --name baremetal ...` before opening the second |
+| `permission denied` writing files in `/work` (WSL2) | Your WSL user isn't UID 1000 (check with `id -u`). Add `--user "$(id -u):$(id -g)"` to `docker run` |
