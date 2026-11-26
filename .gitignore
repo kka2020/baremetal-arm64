@@ -1,0 +1,14 @@
+# Build output
+*.elf
+*.o
+*.bin
+*.map
+
+# Generated from QEMU (regenerate with docs/SETUP.md step 4)
+virt.dtb
+virt.dts
+
+# Editors and OS
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
