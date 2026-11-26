@@ -25,7 +25,8 @@ instead of a list of manual steps. If CI fails, the cause is the code, not a dif
 - On Windows, keep the repo inside WSL's file system (e.g. `~/projects/...`), not under `C:\`,
   because bind mounts from `C:\` are slow.
 - Debugging needs two shells in the same container (`docker exec -it <name> bash`).
-- The Dockerfile was written in Nov 2026 but hasn't been built on either machine yet.
+- The Dockerfile was written in Nov 2026. Built and checked on the Mac (see `docs/FACTS.md`);
+  not yet built on Windows. The smoke test can't run in it until the four starter files exist.
 
 ## Smoke test (before Stage 1)
 
