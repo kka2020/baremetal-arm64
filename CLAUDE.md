@@ -51,6 +51,8 @@ writing drivers from hardware specifications, plus boot code, exceptions and int
 6. **Timebox.** Each stage is a valid stopping point. If a stage is overrunning, suggest wrapping
    up and writing it up rather than pushing on. The README matters more than the stretch goal.
 7. **Commit as you go.** Make small commits with clear messages after each working step.
+   **Don't add Claude attribution** (`Co-Authored-By: Claude …` or "Generated with Claude Code"
+   lines) to commit messages or PR descriptions.
 
 ## Current status (update this section as work progresses)
 
