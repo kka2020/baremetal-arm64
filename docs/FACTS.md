@@ -44,13 +44,15 @@ numbering, add 32 to SPI numbers and 16 to PPI numbers. Check this in the GIC sp
 
 `make git gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu gdb-multiarch qemu-system-arm device-tree-compiler`
 
-Tested on an x86-64 host. On an arm64 host (the Mac's container), Ubuntu also provides
-`gcc-aarch64-linux-gnu` as the native compiler under the same name. If not, use `build-essential`.
+Tested on an x86-64 host. On an arm64 host (the Mac's container), `gcc-aarch64-linux-gnu` is the
+native compiler and calls the plain `as` and `ld`, so **`binutils` must be installed too**.
+Without it you get `cannot execute 'as'` (see `NOTES.md`, 2026-11-27). The Dockerfile installs it.
 
 ## Docker image (`Dockerfile`)
 
 Checked on the Mac (M5, OrbStack, arm64 image) in Nov 2026:
 
+- After adding `binutils`, the image compiles, assembles and links a test `.S` file.
 - The image has the same versions as the manual setup: GCC 13.3.0, binutils 2.42, QEMU 8.2.2,
   GDB 15.1, dtc 1.7.0, Make 4.3, Git 2.43.0.
 - The device tree dumped inside the image matches the memory map above (RAM, PL011, GIC, timer

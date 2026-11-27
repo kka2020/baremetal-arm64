@@ -18,6 +18,9 @@ ARG DEBIAN_FRONTEND=noninteractive
 # - make, git:                     build and version control
 # - gcc/binutils-aarch64-linux-gnu: compiler, assembler and linker for ARM64
 #                                   (a cross-compiler on x86-64, the native one on arm64)
+# - binutils:                      plain `as` and `ld`. On an arm64 host (the Mac), the native
+#                                   aarch64-linux-gnu-gcc calls these, not the prefixed names,
+#                                   and fails with "cannot execute 'as'" without them
 # - gdb-multiarch:                 debugger that understands ARM64
 # - qemu-system-arm:               provides qemu-system-aarch64, the emulator
 # - device-tree-compiler:          dtc, to read QEMU's hardware description
@@ -28,6 +31,7 @@ RUN apt-get update \
         git \
         gcc-aarch64-linux-gnu \
         binutils-aarch64-linux-gnu \
+        binutils \
         gdb-multiarch \
         qemu-system-arm \
         device-tree-compiler \

@@ -82,7 +82,7 @@ Re-enter later with `docker start -ai baremetal`; open a second shell with
 `docker exec -it baremetal bash`. Inside it, install the tools:
 ```bash
 apt update
-apt install -y make git gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu \
+apt install -y make git gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu binutils \
     gdb-multiarch qemu-system-arm device-tree-compiler
 ```
 The container is ARM Linux, so its normal compiler already targets ARM64. If apt can't find
