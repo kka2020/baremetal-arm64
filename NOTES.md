@@ -31,3 +31,21 @@ fresh.
 - **Fix:** add `binutils` to the Dockerfile's package list.
 - **Lesson:** "it worked on the other architecture" isn't a test. Check the tools by compiling
   and linking something, not just with `--version`.
+
+### 2026-11-27: the boot-core mask silently left out Aff3
+- **Stage:** smoke test (`start.S`)
+- **Symptom:** none at run time, which is what made it dangerous. The boot-core check was meant to
+  mask all four affinity fields of `MPIDR_EL1` (`0xff00ffffff`), but it only masked Aff0–Aff2.
+  It still behaved correctly under QEMU, because Aff3 is 0 there anyway.
+- **How I found it:** in code review, by tracing `x1` through the three instructions that built
+  the mask: `mov x1, #0xff` → `0xff`; `lsr x1, x1, #8` → **`0x0`**; `orr x1, x1, #0xffffff` →
+  `0xffffff`. The shift had thrown away every bit of the Aff3 part.
+- **Cause:** two mistakes in one instruction. `lsr` shifts *right* (towards bit 0), but the bits
+  needed to move *up*. And the amount was wrong: Aff3 is bits [39:32], so moving from bits [7:0]
+  needs a shift of 32, not 8. The macro was also misnamed `AFF4` (the fields are Aff0–Aff3).
+- **Fix:** replaced the three-instruction sequence with `ldr x1, =AFF_MASK`
+  (`#define AFF_MASK 0xff00ffffff`). Checked in `objdump`: the literal pool holds
+  `0x000000ff00ffffff`.
+- **Lesson:** "it works" doesn't mean the code is right. QEMU never exercises Aff3, so only tracing
+  the register values (or `p/x $x1` in GDB) could catch this. When building a constant, prefer
+  the form where the value is visible in one place.
