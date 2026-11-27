@@ -26,8 +26,14 @@ numbering, add 32 to SPI numbers and 16 to PPI numbers. Check this in the GIC sp
 - When given an ELF with `-kernel`, QEMU loads it at its linked addresses and jumps to its entry
   point. With a link address of `0x40080000`, GDB showed `pc = 0x40080000` at the first
   instruction.
-- Under emulation, more than one core may start. The boot code should send every core except
-  core 0 to sleep.
+- **Secondary cores (checked Nov 2026):** with `-smp 4 -kernel kernel.elf`, GDB showed four CPUs
+  (`info threads`), all with `pc` at the entry point, but only CPU#0 was `running`. CPUs 1–3 were
+  `halted` and never executed an instruction. (Probably QEMU keeps them powered off until a PSCI
+  "CPU on" call, but that wasn't checked.) Without `-smp`, there is one core. The boot code should
+  still park every core except core 0: other boot paths and real hardware can start them all.
+- **`MPIDR_EL1` on core 0** read `0x80000000`: Aff0 (bits [7:0]) = 0, MT (bit 24) = 0, U (bit 30)
+  = 0, and bit 31 = 1. Bit 31 is RES1 ("reserved, reads as 1"), so the raw value is never 0 and
+  the core-number bits must be masked out before comparing.
 
 ## Toolchain and QEMU quirks
 
