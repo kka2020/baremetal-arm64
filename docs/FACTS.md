@@ -55,6 +55,12 @@ numbering, add 32 to SPI numbers and 16 to PPI numbers. Check this in the GIC sp
   `-no-pie`, `.note.gnu.build-id` was put at `0x40080000` and `.text` moved to `0x40080028`, so
   the entry point moved too. Adding `-Wl,--build-id=none` put `.text` back at `0x40080000`.
   Always check with `objdump -h kernel.elf` that `.text` is first.
+- **`.eh_frame` (stack-unwinding information) needs two flags to remove.** GCC 13 for AArch64 enables
+  both `-fasynchronous-unwind-tables` and `-funwind-tables` by default. Only
+  `-fno-asynchronous-unwind-tables -fno-unwind-tables` together stopped `.eh_frame` being emitted.
+- **`*(.eh_frame*)` in a linker script breaks the link** with the unhelpful
+  `final link failed: bad value`. The pattern also matches `.eh_frame_hdr`, a section the linker
+  generates itself, which must not be merged into `.eh_frame`. `*(.eh_frame)` (exact) links.
 - `gdb-multiarch` attached to QEMU's `-s` stub, stopped at the entry point, hit a breakpoint on
   `main` and stepped C lines correctly (with `-O0 -g`).
 - GDB can't print system registers such as `$CurrentEL` or `$MPIDR_EL1` (they print `void`).

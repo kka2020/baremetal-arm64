@@ -158,7 +158,13 @@ no longer first and the entry point moved. `-Wl,--build-id=none` on the link fix
 - After every change, check that `.text` is at the start address (section 10).
 - Other orphans you may meet: `.note.*`, `.eh_frame` and `.eh_frame_hdr` (stack-unwinding
   information), `.comment`.
-- `ld` has an option to warn about orphans (`--orphan-handling`). It hasn't been tested here.
+- `-Wl,--orphan-handling=warn` makes `ld` list every orphan. Expect a long list of `.debug_*`
+  sections (harmless); look for anything else.
+
+**Don't wildcard `.eh_frame`.** `*(.eh_frame*)` also matches `.eh_frame_hdr`, which the linker
+generates itself, and the link fails with `final link failed: bad value`. Either match it exactly
+(`*(.eh_frame)`), or stop GCC generating it: that needs **both**
+`-fno-asynchronous-unwind-tables` and `-fno-unwind-tables`. One flag on its own isn't enough.
 
 **`KEEP` and `--gc-sections`.** If the link ever uses `--gc-sections` (remove unused sections),
 any section nothing refers to is deleted. In a test without `KEEP`, the entry function survived,
