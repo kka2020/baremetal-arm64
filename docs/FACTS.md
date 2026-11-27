@@ -63,6 +63,11 @@ numbering, add 32 to SPI numbers and 16 to PPI numbers. Check this in the GIC sp
   generates itself, which must not be merged into `.eh_frame`. `*(.eh_frame)` (exact) links.
 - `gdb-multiarch` attached to QEMU's `-s` stub, stopped at the entry point, hit a breakpoint on
   `main` and stepped C lines correctly (with `-O0 -g`).
+- **`finish` in `main` fails** with `"finish" not meaningful in the outermost frame`. GDB stops
+  backtraces at `main` by default (`show backtrace past-main` is `off`). With it `on`, `bt` shows
+  `_start` but then `Backtrace stopped: previous frame identical to this frame (corrupt stack?)`,
+  because `start.S` has no unwind information (the stack isn't really corrupt), and `finish` still
+  didn't stop. What works: `break _sleep` (or `tbreak *$x30`), then `continue`.
 - GDB can't print system registers such as `$CurrentEL` or `$MPIDR_EL1` (they print `void`).
   Read the exception level from `$cpsr`, or `stepi` past an `mrs` and print its `x` register.
   `mrs x1, CurrentEL` gave `x1 = 0x4` (bits [3:2] = 1, i.e. EL1).
