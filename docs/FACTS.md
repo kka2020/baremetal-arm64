@@ -42,6 +42,15 @@ numbering, add 32 to SPI numbers and 16 to PPI numbers. Check this in the GIC sp
   bare-metal image. It's harmless here.
 - QEMU's PL011 accepted writes to the data register without checking the flag register first.
   Real hardware won't, so Stage 1 must wait on the flag.
+- **Ubuntu's GCC builds PIE by default** (`gcc -v` shows `--enable-default-pie`). PIE means
+  position-independent executable. Linking a bare-metal image with only `-T linker.ld -nostdlib`
+  pulled in dynamic-linking sections (`.interp`, `.dynamic`, `.got`, `.dynsym`), which make no
+  sense without an OS. `-no-pie` or `-static` removed them (checked Nov 2026, GCC 13.3).
+- **Orphan sections can end up before your boot code.** Sections the linker script doesn't
+  mention (e.g. `.note.gnu.build-id`, `.eh_frame`) are placed wherever `ld` thinks best. With
+  `-no-pie`, `.note.gnu.build-id` was put at `0x40080000` and `.text` moved to `0x40080028`, so
+  the entry point moved too. Adding `-Wl,--build-id=none` put `.text` back at `0x40080000`.
+  Always check with `objdump -h kernel.elf` that `.text` is first.
 - `gdb-multiarch` attached to QEMU's `-s` stub, stopped at the entry point, hit a breakpoint on
   `main` and stepped C lines correctly (with `-O0 -g`).
 - GDB can't print system registers such as `$CurrentEL` or `$MPIDR_EL1` (they print `void`).
