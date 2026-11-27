@@ -38,7 +38,9 @@ numbering, add 32 to SPI numbers and 16 to PPI numbers. Check this in the GIC sp
   Real hardware won't, so Stage 1 must wait on the flag.
 - `gdb-multiarch` attached to QEMU's `-s` stub, stopped at the entry point, hit a breakpoint on
   `main` and stepped C lines correctly (with `-O0 -g`).
-- GDB can't print `$CurrentEL`, so read the exception level from `$cpsr` instead.
+- GDB can't print system registers such as `$CurrentEL` or `$MPIDR_EL1` (they print `void`).
+  Read the exception level from `$cpsr`, or `stepi` past an `mrs` and print its `x` register.
+  `mrs x1, CurrentEL` gave `x1 = 0x4` (bits [3:2] = 1, i.e. EL1).
 
 ## Package names that worked (Ubuntu 24.04)
 

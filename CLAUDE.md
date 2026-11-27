@@ -76,5 +76,6 @@ writing drivers from hardware specifications, plus boot code, exceptions and int
 | `docs/SETUP.md` | Environment setup for Mac and Windows, Git sync, what the smoke-test files must do |
 | `docs/FACTS.md` | Facts checked by running them (addresses, exception level, QEMU quirks). Trust these |
 | `docs/CONCEPTS.md` | Plain-English explanations: UART, virtio, exceptions, QEMU, why ARM |
+| `docs/ASM.md` | AArch64 assembly crash course: just enough to write `start.S` |
 | `docs/REFERENCES.md` | Which manuals to read for each stage |
 | `NOTES.md` | Bug log: symptom, how it was found, fix |
